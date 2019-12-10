@@ -64,6 +64,45 @@ describe('app routes', () => {
         });
       });
   });
+  it('gets a recipe by id', async() => {
+    const recipe = await Recipe.create({
+      name: 'bundt cake',
+      directions: [
+        'preheat oven to 375',
+        'mix ingredients',
+        'put dough in bundt pan',
+        'bake for 30 minutes'
+      ],
+    });
+    return request(app)
+      .get(`/api/v1/recipes/${recipe._id}`)
+      .then(res => {
+        expect(res.body).toEqual({
+          _id: recipe._id.toString(),
+          name: 'bundt cake',
+          __v: 0,
+          directions: [
+            'preheat oven to 375',
+            'mix ingredients',
+            'put dough in bundt pan',
+            'bake for 30 minutes'
+          ]
+        });
+      });
+  });
+  it('deletes a recipe by id', async() => {
+    const recipe = await Recipe.create({
+      name: 'bundt cake',
+      directions: [
+        'preheat oven to 375',
+        'mix ingredients',
+        'put dough in bundt pan',
+        'bake for 30 minutes'
+      ],
+    });
+    return request(app)
+      .del(`/api/v1/recipes/${recipe._id}`).then(res => expect(res.body._id).toEqual(recipe._id.toString()));
+  });
 
   it('updates a recipe by id', async() => {
     const recipe = await Recipe.create({
@@ -81,7 +120,7 @@ describe('app routes', () => {
       .send({ name: 'good cookies' })
       .then(res => {
         expect(res.body).toEqual({
-          _id: expect.any(String),
+          _id: recipe._id.toString(),
           name: 'good cookies',
           directions: [
             'preheat oven to 375',
