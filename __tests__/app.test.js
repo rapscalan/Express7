@@ -14,6 +14,34 @@ describe('app routes', () => {
   beforeEach(() => {
     return mongoose.connection.dropDatabase();
   });
+  let recipe;
+  beforeEach(async() => {
+    recipe = await Recipe.create({
+      name: 'cookies',
+      directions: [
+        'preheat oven to 375',
+        'mix ingredients',
+        'put dough on cookie sheet',
+        'bake for 10 minutes'
+      ],
+      ingredients: [{
+        name: 'salt',
+        amount: 2,
+        measurement: 'teaspoon'
+      }, 
+      {
+        name: 'flour',
+        amount: 1,
+        measurement: 'cup'
+      },
+      {
+        name: 'sugar',
+        amount: 1,
+        measurement: 'cup'
+      }
+      ]
+    });
+  });
 
   afterAll(() => {
     return mongoose.connection.close();
@@ -29,6 +57,22 @@ describe('app routes', () => {
           'mix ingredients',
           'put dough on cookie sheet',
           'bake for 10 minutes'
+        ],
+        ingredients: [{
+          name: 'salt',
+          amount: 2,
+          measurement: 'teaspoon'
+        }, 
+        {
+          name: 'flour',
+          amount: 1,
+          measurement: 'cup'
+        },
+        {
+          name: 'sugar',
+          amount: 1,
+          measurement: 'cup'
+        }
         ]
       })
       .then(res => {
@@ -40,6 +84,25 @@ describe('app routes', () => {
             'mix ingredients',
             'put dough on cookie sheet',
             'bake for 10 minutes'
+          ],
+          ingredients: [{
+            _id: expect.any(String),
+            name: 'salt',
+            amount: 2,
+            measurement: 'teaspoon'
+          }, 
+          {
+            _id: expect.any(String),
+            name: 'flour',
+            amount: 1,
+            measurement: 'cup'
+          },
+          {
+            _id: expect.any(String),
+            name: 'sugar',
+            amount: 1,
+            measurement: 'cup'
+          }
           ],
           __v: 0
         });
@@ -64,18 +127,48 @@ describe('app routes', () => {
         });
       });
   });
+  it('gets a recipe by id', async() => {
+    return request(app)
+      .get(`/api/v1/recipes/${recipe._id}`)
+      .then(res => {
+        expect(res.body).toEqual({
+          _id: recipe._id.toString(),
+          name: 'cookies',
+          __v: 0,
+          directions: [
+            'preheat oven to 375',
+            'mix ingredients',
+            'put dough on cookie sheet',
+            'bake for 10 minutes'
+          ],
+          ingredients: [{
+            _id: expect.any(String),
+            name: 'salt',
+            amount: 2,
+            measurement: 'teaspoon'
+          }, 
+          {
+            _id: expect.any(String),
+            name: 'flour',
+            amount: 1,
+            measurement: 'cup'
+          },
+          {
+            _id: expect.any(String),
+            name: 'sugar',
+            amount: 1,
+            measurement: 'cup'
+          }
+          ]
+        });
+      });
+  });
+  it('deletes a recipe by id', async() => {
+    return request(app)
+      .del(`/api/v1/recipes/${recipe._id}`).then(res => expect(res.body._id).toEqual(recipe._id.toString()));
+  });
 
   it('updates a recipe by id', async() => {
-    const recipe = await Recipe.create({
-      name: 'cookies',
-      directions: [
-        'preheat oven to 375',
-        'mix ingredients',
-        'put dough on cookie sheet',
-        'bake for 10 minutes'
-      ],
-    });
-
     return request(app)
       .patch(`/api/v1/recipes/${recipe._id}`)
       .send({ name: 'good cookies' })
@@ -88,6 +181,25 @@ describe('app routes', () => {
             'mix ingredients',
             'put dough on cookie sheet',
             'bake for 10 minutes'
+          ],
+          ingredients: [{
+            _id: expect.any(String),
+            name: 'salt',
+            amount: 2,
+            measurement: 'teaspoon'
+          }, 
+          {
+            _id: expect.any(String),
+            name: 'flour',
+            amount: 1,
+            measurement: 'cup'
+          },
+          {
+            _id: expect.any(String),
+            name: 'sugar',
+            amount: 1,
+            measurement: 'cup'
+          }
           ],
           __v: 0
         });
